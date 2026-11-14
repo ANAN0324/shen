@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业收交登记表·工商管理2601</title>
+    <style>
+        :root{
+            --pink:#e86f9c;
+            --blue:#6c8cf5;
+            --green:#4caf7d;
+            --red:#e67474;
+            --text:#2e2e38;
+            --text-light:#9a9aa8;
+            --border:#f0eef4;
+            --card:#ffffff;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;}
+        body{
+            background:linear-gradient(160deg,#fdf2f6 0%,#f1f3fd 55%,#eef4fb 100%);
+            min-height:100vh;
+            padding:26px 16px 40px;
+        }
+        .wrap{
+            background:var(--card);
+            border-radius:22px;
+            padding:24px 20px 26px;
+            max-width:760px;
+            margin:0 auto;
+            box-shadow:0 12px 42px rgba(124,102,220,.10);
+        }
+        h1{
+            text-align:center;
+            font-size:21px;
+            font-weight:700;
+            color:#35353f;
+            letter-spacing:1px;
+            padding-bottom:18px;
+        }
+        h1::after{
+            content:'';
+            display:block;
+            width:54px;height:3px;
+            border-radius:3px;
+            background:linear-gradient(90deg,var(--pink),var(--blue));
+            margin:10px auto 0;
+        }
+        .search-box{margin-bottom:18px;}
+        #search{
+            width:100%;
+            padding:13px 16px;
+            border:1.5px solid #e7e5f0;
+            border-radius:14px;
+            font-size:15px;
+            color:var(--text);
+            background:#fafaff;
+            transition:border-color .15s,box-shadow .15s;
+        }
+        #search::placeholder{color:#c2c2ce;}
+        #search:focus{
+            outline:none;
+            border-color:var(--pink);
+            box-shadow:0 0 0 4px rgba(232,111,156,.12);
+            background:#fff;
+        }
+        .stat{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:10px;
+            margin-bottom:18px;
+        }
+        .stat>div{
+            background:#f8f9ff;
+            border-radius:14px;
+            padding:14px 6px;
+            text-align:center;
+        }
+        .stat .num{font-size:22px;font-weight:800;line-height:1.1;}
+        .stat .label{font-size:12px;color:var(--text-light);margin-top:3px;}
+        .stat .c-total .num{color:var(--blue);}
+        .stat .c-done .num{color:var(--green);}
+        .stat .c-undone .num{color:var(--red);}
+        .btn-group{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+        button{
+            padding:10px 18px;
+            border:none;
+            border-radius:12px;
+            font-size:14px;
+            font-weight:600;
+            color:#fff;
+            cursor:pointer;
+            transition:transform .12s,opacity .12s;
+        }
+        button:hover{opacity:.92;}
+        button:active{transform:scale(.97);}
+        #summaryBtn{background:linear-gradient(135deg,#6c8cf5,#8b7cf0);}
+        #resetCheck{background:linear-gradient(135deg,#f08b8b,#e67474);}
+        .student-item{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:12px 14px;
+            border-radius:12px;
+            margin-bottom:8px;
+            background:#fafaff;
+            cursor:pointer;
+            transition:background .15s;
+            user-select:none;
+        }
+        .student-item:hover{background:#f3f5ff;}
+        .student-item.checked{background:#eefaf2;}
+        .student-item input[type="checkbox"]{
+            width:19px;height:19px;
+            accent-color:var(--pink);
+            cursor:pointer;
+            flex-shrink:0;
+            pointer-events:none;
+        }
+        .student-item .name{font-size:15px;color:var(--text);transition:color .15s;}
+        .student-item.checked .name{color:var(--green);}
+        .student-item.highlight{background:#fff6d6;}
+        .empty{
+            text-align:center;
+            color:#c2c2ce;
+            padding:34px 0;
+            font-size:14px;
+        }
+        .result{
+            margin-top:18px;
+            padding:16px;
+            border-radius:14px;
+            background:#fafaff;
+            border:1px solid var(--border);
+            line-height:1.9;
+            font-size:14px;
+            color:var(--text);
+        }
+        .result-head{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:10px;
+        }
+        .result-head .title{font-size:13px;color:var(--text-light);font-weight:600;}
+        #copyBtn{
+            padding:6px 14px;
+            border-radius:8px;
+            font-size:13px;
+            background:#ececf3;
+            color:#555;
+        }
+        #copyBtn:hover{background:#e2e2ec;}
+        #resultText{white-space:pre-line;}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>🐷 作业收交登记表 🐷</h1>
+    <div class="search-box">
+        <input id="search" placeholder="输入姓名 / 拼音缩写 / 学号搜索">
+    </div>
+    <div class="stat">
+        <div class="c-total"><div class="num" id="total">0</div><div class="label">总人数</div></div>
+        <div class="c-done"><div class="num" id="done">0</div><div class="label">已交</div></div>
+        <div class="c-undone"><div class="num" id="undone">0</div><div class="label">未交</div></div>
+    </div>
+    <div class="btn-group">
+        <button id="summaryBtn">一键汇总名单</button>
+        <button id="resetCheck">一键清空勾选</button>
+    </div>
+    <div id="list"></div>
+    <div id="result" class="result" style="display:none;">
+        <div class="result-head">
+            <span class="title">汇总结果</span>
+            <button id="copyBtn">复制</button>
+        </div>
+        <div id="resultText"></div>
+    </div>
+</div>
+
+<script>
+const studentList = [
+    {name:"崔雨涵", id:"26203010119", pinyin:"cuiyuhan", abbr:"cyh"},
+    {name:"沈钰涵", id:"26203010114", pinyin:"shenyuhan", abbr:"syh"},
+    {name:"甄珠", id:"26203010131", pinyin:"zhenzhu", abbr:"zz"},
+    {name:"彭歆媛", id:"26203010124", pinyin:"pengxinyuan", abbr:"pxy"},
+    {name:"蔡雨桐", id:"26203010113", pinyin:"caiyutong", abbr:"cyt"},
+    {name:"秦荧", id:"26203010128", pinyin:"qinying", abbr:"qy"},
+    {name:"王钰婷", id:"26203010133", pinyin:"wangyuting", abbr:"wyt"},
+    {name:"张进阁", id:"26203010130", pinyin:"zhangjinge", abbr:"zjg"},
+    {name:"韩子翀", id:"26203010109", pinyin:"hanzichong", abbr:"hzc"},
+    {name:"韩思雅", id:"26203010129", pinyin:"hansiya", abbr:"hsy"},
+    {name:"宗彝", id:"26203010115", pinyin:"zongyi", abbr:"zy"},
+    {name:"李俊怡", id:"26203010121", pinyin:"lijunyi", abbr:"ljy"},
+    {name:"刘玥辰", id:"26203010134", pinyin:"liuyuechen", abbr:"lyc"},
+    {name:"曹诗涵", id:"26203010116", pinyin:"caoshihan", abbr:"csh"},
+    {name:"左金婵", id:"26203010132", pinyin:"zuojinchan", abbr:"zjc"},
+    {name:"张芯妍", id:"26203010112", pinyin:"zhangxinyan", abbr:"zxy"},
+    {name:"邓子文", id:"26203010111", pinyin:"dengziwen", abbr:"dzw"},
+    {name:"郑梓言", id:"26203010118", pinyin:"zhengziyan", abbr:"zzy"},
+    {name:"陈相男", id:"26203010126", pinyin:"chenxiangnan", abbr:"cxn"},
+    {name:"李雨泽", id:"26203010120", pinyin:"liyuze", abbr:"lyz"},
+    {name:"张阳", id:"26203010117", pinyin:"zhangyang", abbr:"zy"},
+    {name:"向语馨", id:"26203010127", pinyin:"xiangyuxin", abbr:"xyx"},
+    {name:"陈尔玲", id:"26203010125", pinyin:"chenerling", abbr:"cel"},
+    {name:"蔡祥", id:"26203010105", pinyin:"caixiang", abbr:"cx"},
+    {name:"时永康", id:"26203010103", pinyin:"shiyongkang", abbr:"syk"},
+    {name:"宋仔康", id:"26203010106", pinyin:"songzaikang", abbr:"szk"},
+    {name:"肖子辕", id:"26203010104", pinyin:"xiaoziyuan", abbr:"xzy"},
+    {name:"马斌武", id:"26203010107", pinyin:"mabinwu", abbr:"mbw"},
+    {name:"苏志鹏", id:"26203010101", pinyin:"suzhipeng", abbr:"szp"},
+    {name:"付文澳", id:"26203010108", pinyin:"fuwenao", abbr:"fwa"},
+    {name:"李卓凡", id:"26203010110", pinyin:"lizhuofan", abbr:"lzf"},
+    {name:"杨云翔", id:"26203010102", pinyin:"yangyunxiang", abbr:"yyx"}
+];
+
+const searchInput = document.getElementById('search');
+const listEl = document.getElementById('list');
+const totalEl = document.getElementById('total');
+const doneEl = document.getElementById('done');
+const undoneEl = document.getElementById('undone');
+const summaryBtn = document.getElementById('summaryBtn');
+const resetCheckBtn = document.getElementById('resetCheck');
+const resultEl = document.getElementById('result');
+const resultText = document.getElementById('resultText');
+const copyBtn = document.getElementById('copyBtn');
+
+function getStorage(){
+    const data = localStorage.getItem('homeworkCheck');
+    return data ? JSON.parse(data) : {};
+}
+function saveStorage(obj){
+    localStorage.setItem('homeworkCheck', JSON.stringify(obj));
+}
+
+function render(keyword=""){
+    const checkData = getStorage();
+    listEl.innerHTML = "";
+    let doneCount = 0;
+    let shown = 0;
+    const lowerKey = keyword.toLowerCase();
+
+    studentList.forEach(stu=>{
+        const {name, id, pinyin, abbr} = stu;
+        const idLast2 = id.slice(-2);
+        const match = name.toLowerCase().includes(lowerKey)
+            || pinyin.includes(lowerKey)
+            || abbr.includes(lowerKey)
+            || id.includes(lowerKey)
+            || idLast2.includes(lowerKey);
+        if(keyword && !match) return;
+        shown++;
+
+        const isChecked = !!checkData[id];
+        if(isChecked) doneCount++;
+
+        const label = document.createElement('label');
+        label.className = 'student-item' + (isChecked ? ' checked' : '') + (keyword && match ? ' highlight' : '');
+        label.innerHTML = `
+            <input type="checkbox" data-id="${id}" ${isChecked ? 'checked' : ''}>
+            <span class="name">${name}</span>
+        `;
+        const checkbox = label.querySelector('input');
+        checkbox.onchange = ()=>{
+            checkData[id] = checkbox.checked;
+            saveStorage(checkData);
+            render(searchInput.value);
+        }
+        listEl.appendChild(label);
+    });
+
+    if(shown === 0){
+        listEl.innerHTML = '<div class="empty">没有找到匹配的同学</div>';
+    }
+
+    totalEl.textContent = studentList.length;
+    doneEl.textContent = doneCount;
+    undoneEl.textContent = studentList.length - doneCount;
+}
+
+searchInput.oninput = ()=>{
+    render(searchInput.value.trim());
+}
+
+function buildSummary(){
+    const checkData = getStorage();
+    const done = [];
+    const undone = [];
+    studentList.forEach(stu=>{
+        if(checkData[stu.id]) done.push(stu.name);
+        else undone.push(stu.name);
+    })
+    return `===== 汇总结果 =====\n✅ 已交（${done.length}人）：\n${done.join('、') || '无'}\n\n❌ 未交（${undone.length}人）：\n${undone.join('、') || '无'}`;
+}
+
+summaryBtn.onclick = ()=>{
+    resultText.innerText = buildSummary();
+    resultEl.style.display = '';
+    copyBtn.textContent = '复制';
+}
+
+function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve)=>{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        resolve();
+    });
+}
+
+copyBtn.onclick = ()=>{
+    const text = resultText.innerText;
+    if(!text) return;
+    copyText(text).then(()=>{
+        copyBtn.textContent = '已复制';
+        setTimeout(()=>{
+            copyBtn.textContent = '复制';
+        }, 1500);
+    });
+}
+
+resetCheckBtn.onclick = ()=>{
+    if(confirm("确定清空全部勾选状态吗？名单不会删除！")){
+        saveStorage({});
+        resultText.innerText = "";
+        resultEl.style.display = 'none';
+        render();
+    }
+}
+
+render();
+</script>
+</body>
+</html>
